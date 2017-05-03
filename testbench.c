@@ -12,8 +12,8 @@
 
 float getTimeDiff(struct timeval t0, struct timeval t1);
 int entries = 65;
-char key_A[4096], val_A[4096], keyChar[128], valChar[128], buffer[128];
-char keyContainer[4096][256], valContainer[4096][256];	
+char key_A[4096], val_A[4096], keyChar[128], valChar[128], buffer[4096];
+char keyContainer[4096][4096], valContainer[4096][4096];	
 
 void setMapping(char* key, char* val)
 {
@@ -45,18 +45,20 @@ int getMapping(char* key, char* val)
 	return 0;
 }
 
-void deleteMapping(char* key)
+int deleteMapping(char* key)
 {
 	if(key == NULL)
-		return;
+		return 0;
 	int ret = 0;
 	buffer[0] = '\0';
-	
+
 	ret = kvlib_del(key);
 	if(ret != 0)
-		printf("Error: in deleting the key\t%s\n", key);
+		return 1;
 	if(kvlib_get(key, buffer) == 0)
-		printf("Error: key not deleted properly:\t%s\n", key);
+		return 1;
+	
+	return 0;
 }
 	
 void smallKeyVal()
@@ -114,12 +116,13 @@ void smallKeyVal()
 	// Delete latency for small keys
 	gettimeofday(&t0,NULL);
 	for(i=1; i<entries;i++)
-		deleteMapping(keyContainer[i]);
+		ret += deleteMapping(keyContainer[i]);
 
 	gettimeofday(&t1,NULL);
 	timeDiff = getTimeDiff(t0,t1);
 
 	printf("Delete latency for small keys:\t %f \tus\n", timeDiff);
+	printf("Number of improper deletes:\t%d\n", ret);
 }
 
 void largeKeyVal()
@@ -182,11 +185,12 @@ void largeKeyVal()
 	//Delete latency for large keys			
 	gettimeofday(&t0,NULL);
 	for (i = 1; i < entries; i++) 
-		deleteMapping(keyContainer[i]);
+		ret+= deleteMapping(keyContainer[i]);
 	gettimeofday(&t1,NULL);
 	timeDiff = getTimeDiff(t0,t1);
 
 	printf("Delete latency for large keys:\t %f \tus\n", timeDiff);
+	printf("Number of improper deletes:\t%d\n", ret);
 }
 
 void varyingLenKeyVal()
@@ -248,11 +252,12 @@ void varyingLenKeyVal()
 	//Delete latency for stress testing
 	gettimeofday(&t0,NULL);
 	for (i = 1; i < entries; i++) 
-		deleteMapping(keyContainer[i]);
+		ret += deleteMapping(keyContainer[i]);
 	gettimeofday(&t1,NULL);
 	timeDiff = getTimeDiff(t0,t1);
 
 	printf("Delete latency for varying key/val:\t %f \tus\n", timeDiff);
+	printf("Number of improper deletes:\t%d\n", ret);
 }
 
 void multipleRWD()
