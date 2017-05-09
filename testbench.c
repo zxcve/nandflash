@@ -32,9 +32,10 @@ int getMapping(char* key, char* val)
 		return -1;
 
 	int ret=0;
-	buffer[0]='\0';
+	//buffer[4095]='\0';
 
-	ret = kvlib_get(key, buffer);
+	//printf("getting key %s %lu\n", key, sizeof(buffer));
+	ret = kvlib_get(key, buffer, sizeof(buffer));
 	if(ret != 0)
 	{
 		printf("Error: in reading the key\t%s\n", key);
@@ -55,7 +56,7 @@ int deleteMapping(char* key)
 	ret = kvlib_del(key);
 	if(ret != 0)
 		return 1;
-	if(kvlib_get(key, buffer) == 0)
+	if(kvlib_get(key, buffer, sizeof(buffer)) == 0)
 		return 1;
 	
 	return 0;
@@ -77,7 +78,7 @@ void smallKeyVal()
 		printf("Error in Formatting\n");
 	
 	
-	for (i = 1; i < entries; i++) 
+	for (i = 0; i < entries; i++) 
 	{
 		char key[128], val[128];
 		sprintf(key, "key%d", i);
@@ -129,8 +130,7 @@ void largeKeyVal()
 {
 	int ret, i;
 	struct timeval t0, t1;
-	float timeDiff = 0;
-	
+	float timeDiff = 0;	
 
 	/* first let's format the partition to make sure we operate on a 
 	 * well-known state */
@@ -144,7 +144,7 @@ void largeKeyVal()
 	sprintf(key_A, "keyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy%d", 0);
 	sprintf(val_A, "valueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee%d", 0);
 
-	for (i = 1; i < entries; i++) 
+	for (i = 0; i < entries; i++) 
 	{
 		sprintf(keyChar, "%d", i);
 		sprintf(valChar, "%d", i);
@@ -270,7 +270,7 @@ void multipleRWD()
 	for (i=1; i< entries; i++)
 	{
 		sprintf(key_A, "key%d", i);
-		ret += kvlib_get(key_A, buffer);
+		ret += kvlib_get(key_A, buffer, sizeof(buffer));
 		ret += kvlib_del(key_A);
 				
 		sprintf(key_A, "key%d", i+entries);

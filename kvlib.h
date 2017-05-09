@@ -10,7 +10,7 @@
 int kvlib_set(const char *key, const char *value);
 
 /* lecture d'une valeur a partir d'une cle */
-int kvlib_get(const char *key, char *value);
+int kvlib_get(const char *key, char *value, size_t valsize);
 
 /* fomatage */
 int kvlib_format();

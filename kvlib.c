@@ -16,7 +16,7 @@
 
 /* here we get some info from the virtual device header: device name, major 
  * number, ioctl commands identifiers, and the struct keyval definition */
-#include "../kernel/device.h"
+#include "../NandFlash/device.h"
 
 /**
  * Called by a process wanting to do a format operation.
@@ -155,7 +155,7 @@ int kvlib_del(const char *key)
  * -4 on flash read error
  * -5 on user/kernelspace memory transfer error
  */
-int kvlib_get(const char *key, char *value)
+int kvlib_get(const char *key, char *value, size_t valsize)
 {
 	int fd;
 	int ret = 0;
@@ -168,7 +168,7 @@ int kvlib_get(const char *key, char *value)
 
 	/* peprare the keyval structure we will send through IOCTL */
 	kv.key = (char *)malloc((strlen(key) + 1) * sizeof(char));
-	kv.val = (char *)malloc((strlen(value) + 1) * sizeof(char));
+	kv.val = (char *)malloc(valsize * sizeof(char));
 	sprintf(kv.key, "%s", key);
 	kv.key_len = strlen(key);
 
